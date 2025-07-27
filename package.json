@@ -1,0 +1,15 @@
+{
+  "name": "eslint-plugin-package-json-import-checker",
+  "version": "1.0.0",
+  "description": "ESLint plugin to detect imports not listed in package.json",
+  "author": "Imre Csige <imre.csige@serpens.hu> (https://imrecsige.dev)"
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["eslint", "plugin", "package", "import"],
+  "license": "ISC",
+  "dependencies": {
+    "minimatch": "^3.0.5"
+  }
+}
