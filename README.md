@@ -20,7 +20,8 @@ Add the plugin to your eslint config file:
     "package-json-import-checker/no-unlisted-import": ["error", {
       "packages": [{ "root": "src", "packageJson": "package.json" }],
       "server": false,
-      "blacklist": []
+      "blacklist": [],
+      "tsconfigPath": "tsconfig.json"
     }]
   }
 }
@@ -28,4 +29,5 @@ Add the plugin to your eslint config file:
 
 Set `server` to `true` to automatically block Node.js built in modules. Use the
 `blacklist` option to block specific package names. Wildcards using `*` are
-supported.
+supported. Provide `tsconfigPath` if your project uses TypeScript path aliases;
+imports matching the aliases will be ignored when checking package dependencies.

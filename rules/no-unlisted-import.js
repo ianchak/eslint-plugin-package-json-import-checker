@@ -3,6 +3,17 @@ const path = require('path');
 const minimatch = require('minimatch');
 const { builtinModules } = require('module');
 
+function readTsconfigPaths(tsconfigPath) {
+    try {
+        const data = fs.readFileSync(tsconfigPath, 'utf8');
+        const cfg = JSON.parse(data);
+        const paths = (cfg.compilerOptions && cfg.compilerOptions.paths) || {};
+        return Object.keys(paths).map(p => p.replace(/\*$/, ''));
+    } catch (e) {
+        return [];
+    }
+}
+
 function readDependencies(packageJsonPath) {
     try {
         const data = fs.readFileSync(packageJsonPath, 'utf8');
@@ -32,10 +43,19 @@ module.exports = {
         const packages = option.packages || [];
         const blacklistPatterns = option.blacklist || [];
         const server = option.server;
+        const tsconfigPath = option.tsconfigPath;
 
         const blacklist = new Set(blacklistPatterns);
         if (server) {
             builtinModules.forEach(m => blacklist.add(m));
+        }
+
+        const aliasPrefixes = new Set();
+        if (tsconfigPath) {
+            const abs = Array.isArray(tsconfigPath) ? tsconfigPath : [tsconfigPath];
+            abs.forEach(p => {
+                readTsconfigPaths(path.resolve(p)).forEach(a => aliasPrefixes.add(a));
+            });
         }
 
         const depsByRoot = {};
@@ -63,6 +83,11 @@ module.exports = {
                 const source = node.source.value;
                 if (source.startsWith('.') || source.startsWith('/')) {
                     return;
+                }
+                for (const alias of aliasPrefixes) {
+                    if (source === alias || source.startsWith(alias)) {
+                        return;
+                    }
                 }
                 const pkgName = getPackageName(source);
                 if (isBlacklisted(pkgName)) {
